@@ -6,6 +6,7 @@
 # Copyright 2010 Google Inc.
 # Licensed under the Apache License, Version 2.0
 # http://www.apache.org/licenses/LICENSE-2.0
+__author__ = "Gordon Mathurin"
 
 """
 Define the extract_names() function below and change main()
@@ -44,7 +45,32 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', 'Aaron 57', 'Abagail 895', ...]
     """
     names = []
+    baby_names_dict = {}
     # +++your code here+++
+    with open(filename, 'rU') as f:
+        extracted_data = f.read()
+
+    baby_year_match = re.search(r'Popularity\sin\s(\d\d\d\d)', extracted_data)
+
+    found_baby_names = re.findall(
+        r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', extracted_data)
+
+    if baby_year_match:
+        year = baby_year_match.group(1)
+        names.append(year)
+
+    for name_tuple in found_baby_names:
+        (position, bname, gname) = name_tuple
+        if bname not in baby_names_dict:
+            baby_names_dict[bname] = position
+        if gname not in baby_names_dict:
+            baby_names_dict[gname] = position
+
+    sort_out_names = sorted(baby_names_dict.keys())
+
+    for name in sort_out_names:
+        names.append(name + " " + baby_names_dict[name])
+
     return names
 
 
@@ -83,6 +109,14 @@ def main(args):
     # or to write the list to a summary file (e.g. `baby1990.html.summary`).
 
     # +++your code here+++
+    for file in file_list:
+        result = '\n'.join(extract_names(file))
+        if create_summary:
+            filename = file + '.summary'
+            with open(filename, 'w') as f:
+                f.write(result + '\n')
+        else:
+            print(result)
 
 
 if __name__ == '__main__':
